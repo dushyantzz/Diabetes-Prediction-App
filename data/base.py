@@ -1,63 +1,48 @@
-st_style = """
-           <style>
-           #MainMenu {visibility: hidden;}
-           footer {visibility: hidden;}
-           header {visibility: hidden;}
-           div.block-container {padding-top:1rem;}
-           .css-ysnqb2 e1g8pov64 {margin-top: -75px;}
-           </style>
-           """
+# Import CSS from file
+import os
+
+def load_css(css_file):
+    with open(css_file, 'r') as f:
+        return f'<style>{f.read()}</style>'
+
+# Get the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+css_path = os.path.join(current_dir, 'custom.css')
+
+# Load the CSS
+try:
+    st_style = load_css(css_path)
+except Exception as e:
+    st_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    div.block-container {padding-top:1rem;}
+    </style>
+    """
 
 footer = """
-    <style>
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: rgba(0, 0, 255, 0.1);  /* Very transparent blue */
-        text-align: center;
-        padding: 10px;
-        font-size: 14px;
-        color: #FFFFFF;  /* White text color */
-    }
-    .footer a {
-        color: #FFD700;  /* Golden link color */
-        text-decoration: none;
-    }
-    .footer a:hover {
-        text-decoration: underline;
-    }
-    </style>
-    <div class="footer">
-        <p>Diabetes Prediction | Data Source: National Institute of Diabetes and Digestive and Kidney Diseases | © 2025 dushyantzz <a href="https://github.com/dushyantzz" target="_blank">GitHub</a></p>
+    <div class="custom-footer">
+        <p>Diabetes Prediction | Data Source: National Institute of Diabetes and Digestive and Kidney Diseases | © 2025 dushyantzz <a href="https://github.com/dushyantzz/Diabetes-Prediction-App.git" target="_blank">GitHub</a></p>
     </div>
     """
 
 
 head = """
-    <div style="text-align: 
-    center; 
-    font-size: 40px; 
-    font-weight: bold; 
-    color: #2E86C1;
-    margin-bottom: 20px;">
-        🌟 Diabetes Prediction App 🌟
-    </div>
-    <div style="text-align: center; font-size: 18px; color: #5D6D7E; margin-bottom: 60px;">
-        Harness the power of machine learning to predict diabetes and provide insights!
+    <div class="app-header">
+        <h1>🌟 Diabetes Prediction App 🌟</h1>
+        <p>Harness the power of machine learning to predict diabetes and provide insights!</p>
     </div>
     """
 
 mrk = """
-<div style="background-color: {}; 
-color: white; 
-margin-bottom: 50px;
-padding: 10px;
-max-width: 300px;
-text-align: center;
-border-radius: 5px; text-align: center;">
-    {}
+<div class="prediction-container prediction-{}">
+    <div class="prediction-result">{}</div>
+    <div class="prediction-probability">Probability: {}%</div>
+    <button class="custom-button {}" onclick="window.location.href='#explanation'">
+        View Explanation
+    </button>
 </div>
 """
 
