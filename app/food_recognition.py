@@ -8,6 +8,14 @@ from function.food_recognition_utils import estimate_portion_size, calculate_nut
 from data.food_database import FOOD_DATABASE, GI_DESCRIPTIONS, DIABETES_TIPS
 
 def app():
+    # Initialize session state for meal history if not exists
+    if 'meal_history' not in st.session_state:
+        st.session_state.meal_history = [
+            {"date": "2023-04-14", "time": "08:30", "food": "Oatmeal with banana", "carbs": 45, "calories": 320},
+            {"date": "2023-04-14", "time": "12:15", "food": "Chicken salad", "carbs": 15, "calories": 350},
+            {"date": "2023-04-14", "time": "19:00", "food": "Grilled salmon with vegetables", "carbs": 20, "calories": 420},
+        ]
+
     # Add a card container for the food recognition section
     st.markdown('<div class="card" id="food-recognition">', unsafe_allow_html=True)
     st.markdown('<div class="card-header">Food Recognition & Nutritional Analysis</div>', unsafe_allow_html=True)
@@ -225,38 +233,88 @@ def app():
 
                     # Add a button to save the meal to history
                     if st.button("Save to Meal History"):
-                        st.success("Meal saved to history!")
-                        # In a real implementation, you would save this to a database
+                        # Get current date and time
+                        import datetime
+                        now = datetime.datetime.now()
+                        date_str = now.strftime("%Y-%m-%d")
+                        time_str = now.strftime("%H:%M")
+
+                        # Create a new meal entry
+                        new_meal = {
+                            "date": date_str,
+                            "time": time_str,
+                            "food": identified_food,
+                            "carbs": nutrition['carbs'],
+                            "calories": nutrition['calories']
+                        }
+
+                        # Add to session state
+                        st.session_state.meal_history.append(new_meal)
+
+                        # Show success message
+                        st.success(f"Meal '{identified_food}' saved to history!")
+                        st.info(f"Added {nutrition['carbs']}g of carbs and {nutrition['calories']} calories to your daily total.")
 
     with tab2:
         st.markdown("### Your Meal History")
         st.markdown("Track your food intake and monitor carbohydrate consumption over time.")
 
-        # In a real implementation, you would load meal history from a database
-        # For this demo, we'll show a sample meal history
+        # Get meal history from session state
 
-        # Sample meal history data
-        sample_meals = [
-            {"date": "2023-04-14", "time": "08:30", "food": "Oatmeal with banana", "carbs": 45, "calories": 320},
-            {"date": "2023-04-14", "time": "12:15", "food": "Chicken salad", "carbs": 15, "calories": 350},
-            {"date": "2023-04-14", "time": "19:00", "food": "Grilled salmon with vegetables", "carbs": 20, "calories": 420},
-            {"date": "2023-04-13", "time": "08:00", "food": "Whole grain toast with eggs", "carbs": 30, "calories": 380},
-            {"date": "2023-04-13", "time": "13:00", "food": "Turkey sandwich", "carbs": 35, "calories": 450},
-            {"date": "2023-04-13", "time": "18:30", "food": "Pasta with tomato sauce", "carbs": 65, "calories": 520},
-        ]
+        # Add a button to clear meal history
+        col1, col2 = st.columns([3, 1])
+        with col2:
+            if st.button("🗑️ Clear History", key="clear_history"):
+                # Keep only the first 3 sample entries
+                st.session_state.meal_history = st.session_state.meal_history[:3]
+                st.success("Meal history cleared!")
+                st.experimental_rerun()
 
         # Convert to DataFrame
-        meal_df = pd.DataFrame(sample_meals)
+        meal_df = pd.DataFrame(st.session_state.meal_history)
+
+        # Sort by date and time (most recent first)
+        if not meal_df.empty:
+            meal_df['datetime'] = pd.to_datetime(meal_df['date'] + ' ' + meal_df['time'])
+            meal_df = meal_df.sort_values('datetime', ascending=False)
+            meal_df = meal_df.drop('datetime', axis=1)  # Remove the helper column
 
         # Display meal history
         st.dataframe(meal_df, use_container_width=True)
 
         # Display total carbs per day
         st.markdown("### Daily Carbohydrate Intake")
-        daily_carbs = meal_df.groupby("date")["carbs"].sum().reset_index()
 
-        # Create a bar chart for daily carbs
-        st.bar_chart(daily_carbs.set_index("date"))
+        if not meal_df.empty:
+            # Calculate daily totals
+            daily_carbs = meal_df.groupby("date").agg({
+                "carbs": "sum",
+                "calories": "sum"
+            }).reset_index()
+
+            # Get today's date
+            import datetime
+            today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+            # Check if we have data for today
+            today_data = daily_carbs[daily_carbs['date'] == today]
+
+            # Display today's totals if available
+            if not today_data.empty:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Today's Carbs", f"{today_data.iloc[0]['carbs']:.0f}g",
+                              delta=f"{today_data.iloc[0]['carbs'] - 130:.0f}g from min. recommended")
+                with col2:
+                    st.metric("Today's Calories", f"{today_data.iloc[0]['calories']:.0f} kcal")
+
+            # Create a bar chart for daily carbs
+            st.bar_chart(daily_carbs.set_index("date")["carbs"])
+
+            # Add a line for recommended minimum carbs
+            st.markdown("<div style='text-align: center; color: #777;'>Recommended daily minimum: 130g carbs</div>", unsafe_allow_html=True)
+        else:
+            st.info("No meal data available yet. Add meals using the food recognition feature.")
 
         # Add a note about carbohydrate intake
         st.markdown("""
