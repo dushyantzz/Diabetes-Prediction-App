@@ -46,6 +46,10 @@ performance_app()
 from app.perm_importance import app as importance_app
 importance_app()
 
+# Food recognition section
+from app.food_recognition import app as food_recognition_app
+food_recognition_app()
+
 # About section
 from app.about import app as about_app
 about_app()
