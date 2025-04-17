@@ -27,24 +27,96 @@ def app():
 
     with tab1:
         # Image upload section
-        st.markdown("### Upload a Food Image")
+        st.markdown("### Upload or Capture a Food Image")
         st.markdown("Take a photo of your meal or upload an existing image to analyze its nutritional content.")
 
-        # File uploader for images
-        uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+        # Create tabs for different image input methods
+        img_tab1, img_tab2 = st.tabs(["📁 Upload Image", "📸 Use Camera"])
 
-        # Camera input option
-        camera_input = st.camera_input("Or take a photo")
+        with img_tab1:
+            # File uploader for images
+            uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-        # Process the image if uploaded or taken
-        if uploaded_file is not None or camera_input is not None:
-            # Use the uploaded file or camera input
-            image_file = uploaded_file if uploaded_file is not None else camera_input
+        with img_tab2:
+            # Camera controls
+            col1, col2 = st.columns([1, 1])
 
-            # Display the image
+            with col1:
+                camera_on = st.checkbox("Start Camera", value=False)
+
+            # Initialize session state for camera image if not exists
+            if 'camera_image' not in st.session_state:
+                st.session_state.camera_image = None
+
+            # Camera container that will show/hide based on checkbox
+            camera_container = st.empty()
+
+            if camera_on:
+                # Show camera input when camera is on
+                with camera_container.container():
+                    camera_input = st.camera_input("Camera Feed", key="live_camera")
+                    if camera_input:
+                        # Store the captured image in session state
+                        st.session_state.camera_image = camera_input
+                        # Add a capture button
+                        if st.button("📸 Capture This Image", key="capture_btn"):
+                            st.success("Image captured! You can now analyze it.")
+                            # Turn off camera after capturing
+                            camera_on = False
+                            st.experimental_rerun()
+            else:
+                # If camera is off but we have a captured image, display it
+                if st.session_state.camera_image:
+                    with camera_container.container():
+                        st.image(Image.open(st.session_state.camera_image), caption="Captured Image", use_column_width=True)
+                        if st.button("🔄 Retake Photo", key="retake_btn"):
+                            # Clear the captured image and turn camera back on
+                            st.session_state.camera_image = None
+                            camera_on = True
+                            st.experimental_rerun()
+
+        # Add a reset button to clear all images
+        if 'reset_images' not in st.session_state:
+            st.session_state.reset_images = False
+
+        # Camera status indicator in sidebar
+        st.sidebar.markdown("### Camera Status")
+        if 'camera_image' in st.session_state and st.session_state.camera_image is not None:
+            st.sidebar.success("📸 Image captured and ready for analysis")
+        elif camera_on:
+            st.sidebar.warning("📹 Camera is active - waiting for capture")
+        else:
+            st.sidebar.info("📴 Camera is off")
+
+        # Clear button in the sidebar
+        if st.sidebar.button("🗑️ Clear All Images", key="clear_images"):
+            st.session_state.camera_image = None
+            st.session_state.reset_images = True
+            st.experimental_rerun()
+
+        # Reset the file uploader by toggling the session state
+        if st.session_state.reset_images:
+            st.session_state.reset_images = False
+            uploaded_file = None
+
+        # Get the image from either upload or camera capture
+        image_file = None
+        image_source = None
+
+        if uploaded_file is not None:
+            image_file = uploaded_file
+            image_source = "uploaded"
+        elif st.session_state.camera_image is not None:
+            image_file = st.session_state.camera_image
+            image_source = "captured"
+
+        # Process the image if available
+        if image_file is not None:
             try:
                 image = Image.open(image_file)
-                st.image(image, caption="Uploaded Image", use_column_width=True)
+                if image_source == "uploaded":
+                    st.image(image, caption="Uploaded Image", use_column_width=True)
+                # Note: We don't need to display the captured image again as it's already shown
             except Exception as e:
                 st.error(f"Error opening image: {str(e)}")
                 st.info("Please try a different image format (JPG, PNG recommended)")
@@ -79,9 +151,10 @@ def app():
                     # Calculate nutritional information
                     nutrition = calculate_nutrition(food, portion_size)
 
-                    # Display results
+                    # Display results with source information
                     st.success(f"Food identified: **{identified_food}**")
                     st.info(f"Matched to database entry: **{food.title()}** (Confidence: {confidence:.2f})")
+                    st.caption(f"Image source: {image_source.capitalize()} image")
 
                     # If it's a meal with components, show them
                     if meal_components:
