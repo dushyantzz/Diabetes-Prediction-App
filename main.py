@@ -19,9 +19,9 @@ st.set_page_config(
 # Apply custom CSS
 st.markdown(st_style, unsafe_allow_html=True)
 
-# Header
-from app.header import app as header_app
-header_app()
+# Add navigation bar
+from app.navigation import app as navigation_app
+navigation_app()
 
 # Sidebar inputs
 from app.input import app as input_app
@@ -31,10 +31,12 @@ input_data = input_app()
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
 # Prediction section
+st.markdown('<div id="prediction"></div>', unsafe_allow_html=True)
 from app.predict import app as predict_app
 predict_app(input_data)
 
 # Explanation section
+st.markdown('<div id="explanation"></div>', unsafe_allow_html=True)
 from app.explainer import app as explain_app
 explain_app(input_data)
 
@@ -47,14 +49,17 @@ from app.perm_importance import app as importance_app
 importance_app()
 
 # Food recognition section
+st.markdown('<div id="food-recognition"></div>', unsafe_allow_html=True)
 from app.food_recognition import app as food_recognition_app
 food_recognition_app()
 
 # Meal recommendations section
+st.markdown('<div id="meal-recommendations"></div>', unsafe_allow_html=True)
 from app.meal_recommendations import app as meal_recommendations_app
 meal_recommendations_app()
 
 # About section
+st.markdown('<div id="about"></div>', unsafe_allow_html=True)
 from app.about import app as about_app
 about_app()
 
