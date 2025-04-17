@@ -15,7 +15,12 @@ data = pd.read_csv('datasets/diabetes.csv')
 X = data[['Pregnancies', 'Glucose', 'Insulin', 'BMI', 'Age']]
 y = data['Outcome']
 
-page_icon = Image.open("image/page_icon.jpeg")
+# Try to load the page icon, but use a fallback if it fails
+try:
+    page_icon = Image.open("image/page_icon.jpeg")
+except FileNotFoundError:
+    # Create a simple colored image as fallback
+    page_icon = Image.new('RGB', (512, 512), color = (73, 109, 137))
 
 model = joblib.load('model.pkl')
 

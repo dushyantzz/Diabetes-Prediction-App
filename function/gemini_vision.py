@@ -60,25 +60,28 @@ def analyze_food_image(image):
 
         # Create the prompt for food identification
         prompt = """
-        You are a food recognition AI specialized in identifying food items for diabetes management.
+        You are a food recognition AI specialized in identifying food items for diabetes management. Your task is to analyze food images with high accuracy.
 
-        Analyze this image and identify the food item shown.
+        IMPORTANT: Examine the image carefully and identify the exact food item(s) shown.
 
         Please provide the following information in JSON format:
-        1. The name of the food (be specific)
-        2. Confidence level (high, medium, or low)
+        1. The name of the food (be very specific, e.g., "chocolate brownie" not just "dessert")
+        2. Confidence level (high, medium, or low) based on how clearly you can identify the food
         3. Whether it's a single food item or a meal with multiple components
-        4. If it's a meal, list the main components
+        4. If it's a meal, list all visible main components
+        5. Estimate the primary carbohydrate content (high, medium, low) if possible
 
-        Format your response as valid JSON with these keys:
+        Format your response ONLY as valid JSON with these keys:
         {
             "food_name": "specific food name",
             "confidence": "high/medium/low",
             "is_meal": true/false,
-            "components": ["component1", "component2"] (if applicable)
+            "components": ["component1", "component2"],
+            "carb_content": "high/medium/low"
         }
 
-        Only respond with the JSON, nothing else. This is critical for a diabetes management application.
+        CRITICAL: Only respond with the JSON object, nothing else. No explanations, no markdown formatting.
+        This is for a diabetes management application where accurate food identification is essential for health monitoring.
         """
 
         # Prepare the request payload
@@ -133,7 +136,8 @@ def analyze_food_image(image):
                             "food_name": text_response.strip(),
                             "confidence": "medium",
                             "is_meal": False,
-                            "components": []
+                            "components": [],
+                            "carb_content": "medium"
                         }
 
                     return food_data
@@ -143,7 +147,8 @@ def analyze_food_image(image):
                         "food_name": text_response.strip(),
                         "confidence": "medium",
                         "is_meal": False,
-                        "components": []
+                        "components": [],
+                        "carb_content": "medium"
                     }
             except (KeyError, IndexError) as e:
                 st.error(f"Error parsing API response: {str(e)}")
@@ -152,7 +157,8 @@ def analyze_food_image(image):
                     "food_name": "parsing error",
                     "confidence": "low",
                     "is_meal": False,
-                    "components": []
+                    "components": [],
+                    "carb_content": "medium"
                 }
         elif response.status_code == 404:
             error_msg = "API Error: Model not found or deprecated. Using gemini-1.5-flash model."
@@ -162,7 +168,8 @@ def analyze_food_image(image):
                 "food_name": "API error - model not found",
                 "confidence": "low",
                 "is_meal": False,
-                "components": []
+                "components": [],
+                "carb_content": "medium"
             }
         else:
             st.error(f"API Error: {response.status_code} - {response.text[:200]}")
@@ -170,7 +177,8 @@ def analyze_food_image(image):
                 "food_name": "unknown",
                 "confidence": "low",
                 "is_meal": False,
-                "components": []
+                "components": [],
+                "carb_content": "medium"
             }
 
     except Exception as e:
@@ -179,7 +187,8 @@ def analyze_food_image(image):
             "food_name": "error",
             "confidence": "low",
             "is_meal": False,
-            "components": []
+            "components": [],
+            "carb_content": "medium"
         }
 
 def find_closest_food(food_name, food_database):

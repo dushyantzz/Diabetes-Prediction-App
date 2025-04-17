@@ -142,10 +142,14 @@ def app():
                     confidence_level = food_analysis.get('confidence', 'medium')
                     is_meal = food_analysis.get('is_meal', False)
                     components = food_analysis.get('components', [])
+                    carb_content = food_analysis.get('carb_content', 'medium')
 
                     # Map confidence level to numeric value
                     confidence_map = {'high': 0.9, 'medium': 0.7, 'low': 0.5}
                     confidence = confidence_map.get(confidence_level, 0.7)
+
+                    # Store the AI-estimated carb content for display
+                    st.session_state.carb_estimate = carb_content
 
                     # Find the closest match in our food database
                     food, match_score = find_closest_food(identified_food, FOOD_DATABASE)
@@ -167,6 +171,20 @@ def app():
                     # If it's a meal with components, show them
                     if meal_components:
                         st.info(f"This appears to be a meal containing: {meal_components}")
+
+                    # Display AI-estimated carb content
+                    carb_colors = {
+                        'high': '#E74C3C',  # Red for high carbs
+                        'medium': '#F39C12',  # Orange for medium carbs
+                        'low': '#27AE60'  # Green for low carbs
+                    }
+                    carb_color = carb_colors.get(carb_content, '#3498DB')  # Default blue
+
+                    st.markdown(f"""
+                    <div style="background-color: {carb_color}20; padding: 10px; border-radius: 5px; border-left: 5px solid {carb_color}; margin-bottom: 15px;">
+                        <strong>AI-Estimated Carb Content:</strong> <span style="color: {carb_color}; font-weight: bold;">{carb_content.upper()}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
 
                     # Display portion size
                     st.markdown(f"**Estimated portion size:** {portion_size:.0f}g")

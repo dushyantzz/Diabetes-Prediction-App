@@ -50,6 +50,10 @@ importance_app()
 from app.food_recognition import app as food_recognition_app
 food_recognition_app()
 
+# Meal recommendations section
+from app.meal_recommendations import app as meal_recommendations_app
+meal_recommendations_app()
+
 # About section
 from app.about import app as about_app
 about_app()
