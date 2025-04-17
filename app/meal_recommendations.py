@@ -294,6 +294,10 @@ def app():
         if 'saved_recommendations' not in st.session_state:
             st.session_state.saved_recommendations = []
 
+        # Initialize session state for improved meals if not exists
+        if 'improved_meals' not in st.session_state:
+            st.session_state.improved_meals = {}
+
         # Create two columns for health data and preferences
         col1, col2 = st.columns(2)
 
@@ -441,6 +445,16 @@ def app():
                     if breakfast_meals:
                         for i, meal in enumerate(breakfast_meals):
                             display_meal(meal, i, "breakfast")
+
+                            # Check if there's an improved version of this meal
+                            improvement_key = f"breakfast_{i}_improved"
+                            if 'improved_meals' in st.session_state and improvement_key in st.session_state.improved_meals:
+                                improved_data = st.session_state.improved_meals[improvement_key]
+                                st.divider()
+                                st.subheader("Improved Recommendation")
+                                display_meal(improved_data['meal'], f"{i}00", "breakfast", show_feedback=False)  # Use a different index format
+                                st.markdown("**How we improved it:**")
+                                st.info(improved_data['explanation'])
                     else:
                         st.info("No breakfast recommendations available.")
 
@@ -449,6 +463,16 @@ def app():
                     if lunch_meals:
                         for i, meal in enumerate(lunch_meals):
                             display_meal(meal, i, "lunch")
+
+                            # Check if there's an improved version of this meal
+                            improvement_key = f"lunch_{i}_improved"
+                            if 'improved_meals' in st.session_state and improvement_key in st.session_state.improved_meals:
+                                improved_data = st.session_state.improved_meals[improvement_key]
+                                st.divider()
+                                st.subheader("Improved Recommendation")
+                                display_meal(improved_data['meal'], f"{i}00", "lunch", show_feedback=False)  # Use a different index format
+                                st.markdown("**How we improved it:**")
+                                st.info(improved_data['explanation'])
                     else:
                         st.info("No lunch recommendations available.")
 
@@ -457,6 +481,16 @@ def app():
                     if dinner_meals:
                         for i, meal in enumerate(dinner_meals):
                             display_meal(meal, i, "dinner")
+
+                            # Check if there's an improved version of this meal
+                            improvement_key = f"dinner_{i}_improved"
+                            if 'improved_meals' in st.session_state and improvement_key in st.session_state.improved_meals:
+                                improved_data = st.session_state.improved_meals[improvement_key]
+                                st.divider()
+                                st.subheader("Improved Recommendation")
+                                display_meal(improved_data['meal'], f"{i}00", "dinner", show_feedback=False)  # Use a different index format
+                                st.markdown("**How we improved it:**")
+                                st.info(improved_data['explanation'])
                     else:
                         st.info("No dinner recommendations available.")
 
@@ -515,7 +549,7 @@ def app():
                     if meal_plans:
                         # Display a random meal from this recommendation set
                         sample_meal = random.choice(meal_plans)
-                        display_meal(sample_meal, 0, sample_meal.get('meal_type', 'meal').lower())
+                        display_meal(sample_meal, 0, sample_meal.get('meal_type', 'meal').lower(), show_feedback=False)
 
                         st.markdown(f"**This recommendation set includes {len(meal_plans)} meals and {len(rec.get('alternatives', []))} alternatives.**")
 
@@ -533,8 +567,15 @@ def app():
                 st.success("All saved recommendations cleared!")
                 st.experimental_rerun()
 
-def display_meal(meal, index, meal_type):
-    """Helper function to display a meal recommendation"""
+def display_meal(meal, index, meal_type, show_feedback=True):
+    """Helper function to display a meal recommendation
+
+    Args:
+        meal: The meal data dictionary
+        index: Unique identifier for the meal
+        meal_type: Type of meal (breakfast, lunch, dinner)
+        show_feedback: Whether to show the feedback section (default: True)
+    """
 
     # Get meal details
     name = meal.get('name', f'Recommended {meal_type.capitalize()}')
@@ -580,30 +621,42 @@ def display_meal(meal, index, meal_type):
     with tips_tab:
         st.info(tips)
 
-    # Feedback and improvement section
-    with st.expander("Provide Feedback to Improve This Recommendation"):
-        feedback = st.text_area(
-            "What would you like to change about this meal?",
-            placeholder="e.g., 'I don't like spinach' or 'I need a quicker preparation method'",
-            key=f"feedback_{meal_type}_{index}"
-        )
+    # Feedback and improvement section - only if show_feedback is True
+    if show_feedback:
+        st.divider()
+        st.subheader("Improve This Recommendation")
 
-        if st.button("Get Improved Recommendation", key=f"improve_{meal_type}_{index}"):
-            with st.spinner("Generating improved recommendation..."):
-                # Get improved recommendation
-                improvement = get_feedback_improvement(name, feedback)
+        # Only show feedback UI if we're not already showing an improved meal (to avoid nesting issues)
+        if not str(index).endswith('00'):  # Check if this is an original meal, not an improved one
+            feedback = st.text_area(
+                "What would you like to change about this meal?",
+                placeholder="e.g., 'I don't like spinach' or 'I need a quicker preparation method'",
+                key=f"feedback_{meal_type}_{index}"
+            )
 
-                if 'error' in improvement:
-                    st.error(f"Error: {improvement['error']}")
-                else:
-                    st.success("Recommendation improved based on your feedback!")
+            if st.button("Get Improved Recommendation", key=f"improve_{meal_type}_{index}"):
+                with st.spinner("Generating improved recommendation..."):
+                    # Get improved recommendation
+                    improvement = get_feedback_improvement(name, feedback)
 
-                    # Display improved meal
-                    improved_meal = improvement.get('improved_meal', {})
+                    if 'error' in improvement:
+                        st.error(f"Error: {improvement['error']}")
+                    else:
+                        st.success("Recommendation improved based on your feedback!")
 
-                    st.markdown("### Improved Recommendation")
-                    display_meal(improved_meal, index+100, meal_type)  # Use a different index to avoid key conflicts
+                        # Store the improved meal in session state
+                        if 'improved_meals' not in st.session_state:
+                            st.session_state.improved_meals = {}
 
-                    # Display explanation
-                    st.markdown(f"**How we improved it:**")
-                    st.info(improvement.get('explanation', 'No explanation provided'))
+                        # Create a unique key for this improvement
+                        improvement_key = f"{meal_type}_{index}_improved"
+                        st.session_state.improved_meals[improvement_key] = {
+                            'meal': improvement.get('improved_meal', {}),
+                            'explanation': improvement.get('explanation', 'No explanation provided')
+                        }
+
+                        # Rerun to show the improved meal in a clean UI state
+                        st.experimental_rerun()
+        else:
+            # This is an improved meal, so just show a message
+            st.info("This is already an improved recommendation.")
