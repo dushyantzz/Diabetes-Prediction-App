@@ -556,7 +556,7 @@ def app():
                     # Button to delete this recommendation
                     if st.button("Delete This Recommendation", key=f"delete_rec_{i}"):
                         st.session_state.saved_recommendations.remove(rec)
-                        st.experimental_rerun()
+                        st.rerun()
         else:
             st.info("You haven't saved any recommendations yet. Generate and save recommendations to see them here.")
 
@@ -565,7 +565,7 @@ def app():
             if st.button("Clear All Saved Recommendations", key="clear_recommendations"):
                 st.session_state.saved_recommendations = []
                 st.success("All saved recommendations cleared!")
-                st.experimental_rerun()
+                st.rerun()
 
 def display_meal(meal, index, meal_type, show_feedback=True):
     """Helper function to display a meal recommendation
@@ -656,7 +656,7 @@ def display_meal(meal, index, meal_type, show_feedback=True):
                         }
 
                         # Rerun to show the improved meal in a clean UI state
-                        st.experimental_rerun()
+                        st.rerun()
         else:
             # This is an improved meal, so just show a message
             st.info("This is already an improved recommendation.")

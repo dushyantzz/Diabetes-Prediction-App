@@ -19,7 +19,13 @@ FOOD_DATABASE = {
     'cheese': {'carbs': 1.3, 'calories': 402, 'protein': 25, 'fat': 33, 'fiber': 0, 'gi': 'low'},
     'egg': {'carbs': 0.6, 'calories': 155, 'protein': 13, 'fat': 11, 'fiber': 0, 'gi': 'low'},
     'chocolate': {'carbs': 60, 'calories': 546, 'protein': 4.9, 'fat': 31, 'fiber': 7, 'gi': 'medium'},
-    'ice cream': {'carbs': 24, 'calories': 207, 'protein': 3.5, 'fat': 11, 'fiber': 0.5, 'gi': 'medium'}
+    'ice cream': {'carbs': 24, 'calories': 207, 'protein': 3.5, 'fat': 11, 'fiber': 0.5, 'gi': 'medium'},
+    'samosa': {'carbs': 28, 'calories': 262, 'protein': 5.3, 'fat': 17, 'fiber': 3.5, 'gi': 'high'},
+    'dosa': {'carbs': 25, 'calories': 184, 'protein': 3.5, 'fat': 8.2, 'fiber': 1.2, 'gi': 'medium'},
+    'idli': {'carbs': 22, 'calories': 156, 'protein': 4.5, 'fat': 6.5, 'fiber': 1.8, 'gi': 'medium'},
+    'chapati': {'carbs': 18, 'calories': 104, 'protein': 3.2, 'fat': 1.1, 'fiber': 2.7, 'gi': 'medium'},
+    'naan': {'carbs': 52, 'calories': 310, 'protein': 9, 'fat': 8, 'fiber': 2.1, 'gi': 'high'},
+    'biryani': {'carbs': 30, 'calories': 292, 'protein': 15, 'fat': 14, 'fiber': 1.5, 'gi': 'high'}
 }
 
 # GI level descriptions
@@ -57,5 +63,11 @@ STANDARD_PORTIONS = {
     'cheese': 30,   # 1 oz
     'egg': 50,      # 1 large egg
     'chocolate': 40, # Small bar
-    'ice cream': 65  # 1/2 cup
+    'ice cream': 65, # 1/2 cup
+    'samosa': 60,   # 1 medium samosa
+    'dosa': 120,    # 1 medium dosa
+    'idli': 40,     # 1 medium idli
+    'chapati': 30,  # 1 medium chapati
+    'naan': 80,     # 1 medium naan
+    'biryani': 200  # 1 serving
 }

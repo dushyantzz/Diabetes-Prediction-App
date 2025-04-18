@@ -203,18 +203,34 @@ def find_closest_food(food_name, food_database):
         tuple: (food_key, similarity_score)
     """
     # Convert to lowercase for comparison
-    food_name_lower = food_name.lower()
+    food_name_lower = food_name.lower().strip()
+
+    # Handle plurals by removing trailing 's' if present
+    singular_food_name = food_name_lower[:-1] if food_name_lower.endswith('s') else food_name_lower
 
     # First try direct match
     if food_name_lower in food_database:
         return food_name_lower, 1.0
 
+    # Try singular form if the original was plural
+    if singular_food_name in food_database and singular_food_name != food_name_lower:
+        return singular_food_name, 0.95
+
+    # Check for exact word matches (to handle compound names like "vegetable salad")
+    for key in food_database.keys():
+        # If the food name contains the exact database key as a whole word
+        if f" {key} " in f" {food_name_lower} " or food_name_lower == key:
+            return key, 0.9
+        # If the singular form contains the exact database key
+        if f" {key} " in f" {singular_food_name} " or singular_food_name == key:
+            return key, 0.85
+
     # Check if any database key is contained in the food name
     for key in food_database.keys():
         if key in food_name_lower:
-            return key, 0.9
-        if food_name_lower in key:
             return key, 0.8
+        if food_name_lower in key:
+            return key, 0.7
 
     # Simple word matching for basic similarity
     best_match = None

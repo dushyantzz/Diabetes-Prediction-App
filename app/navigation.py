@@ -13,10 +13,10 @@ def app():
             justify-content: space-between;
             align-items: center;
             background: linear-gradient(135deg, #6e8efb, #a777e3);
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             border-radius: 10px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -27,28 +27,33 @@ def app():
             font-weight: 700;
             color: white;
             text-decoration: none;
-            margin-right: 1rem;
+            margin-right: 2rem;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-links {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.8rem;
             flex-wrap: wrap;
             justify-content: flex-end;
+            align-items: center;
         }
 
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
-                padding: 0.8rem;
+                padding: 1rem;
             }
 
             .navbar-brand {
-                margin-bottom: 0.8rem;
+                margin-bottom: 1rem;
+                margin-right: 0;
             }
 
             .navbar-links {
                 justify-content: center;
+                gap: 0.6rem;
             }
 
             .navbar-title {
@@ -59,24 +64,25 @@ def app():
         .navbar-link {
             color: white;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
             transition: all 0.3s ease;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.15);
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.4rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .navbar-link-icon {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
 
         .navbar-title {
@@ -84,7 +90,8 @@ def app():
             font-weight: 700;
             color: white;
             margin: 0;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
         }
         </style>
 

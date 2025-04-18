@@ -1,4 +1,3 @@
-import time
 import streamlit as st
 from loader import model, accuracy_result
 from data.config import thresholds
@@ -20,36 +19,17 @@ def app(input_data):
     # Create columns for layout
     cols = st.columns([3, 2])
 
-    # Column 1: Animated text and metrics
+    # Column 1: Prediction text and metrics
     with cols[0]:
-        # Add a loading animation
-        st.markdown('<div class="loader"></div>', unsafe_allow_html=True)
-
-        # Stream the prediction text with animation
-        def stream_data():
-            text = f"Analyzing your health parameters...\n\n"
-            for word in text.split(" "):
-                yield word + " "
-                time.sleep(0.05)
-
-            text = f"Model Accuracy: {accuracy_result}%\n\n"
-            for word in text.split(" "):
-                yield word + " "
-                time.sleep(0.05)
-
-            text = f"\nPrediction: {is_diabetes}\n"
-            for word in text.split(" "):
-                yield word + " "
-                time.sleep(0.05)
-
-            text = f"\nProbability: {probability_pct}%\n"
-            for word in text.split(" "):
-                yield word + " "
-                time.sleep(0.05)
-
-            return 80
-
-        st.write_stream(stream_data)
+        # Display prediction information directly without animation
+        st.markdown(f"""
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #6e8efb;">
+            <h3 style="margin-top: 0; color: #2c3e50;">Analysis Results</h3>
+            <p style="font-size: 1.1rem; margin-bottom: 10px;">Model Accuracy: <strong>{accuracy_result}%</strong></p>
+            <p style="font-size: 1.1rem; margin-bottom: 10px;">Prediction: <strong>{is_diabetes}</strong></p>
+            <p style="font-size: 1.1rem; margin-bottom: 0;">Probability: <strong>{probability_pct}%</strong></p>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Add metrics in card format
         st.markdown('<div style="display: flex; justify-content: space-between; margin-top: 20px;">', unsafe_allow_html=True)
